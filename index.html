@@ -632,7 +632,7 @@ function buildTimes(sh, eh) {
   }
   return list;
 }
-const allTimes = buildTimes(6,22);
+const allTimes = buildTimes(0, 24);
 let selStart = allTimes.findIndex(t=>t.val===9*60);
 let selEnd   = allTimes.findIndex(t=>t.val===10*60);
 
@@ -690,7 +690,7 @@ let bookCalYear=today.getFullYear(), bookCalMonth=today.getMonth();
 let bookSelDate=new Date(today);
 
 // ─── 예약 현황 ───
-const sTimes = buildTimes(9, 22);
+const sTimes = buildTimes(0, 24);
 
 // 룸 운영 스케줄
 const roomSched={
@@ -1073,7 +1073,7 @@ async function cancelBooking(btn){
 }
 
 // ─── 룸 운영 세부 설정 ───
-const timeH=buildTimes(6,22).filter(t=>t.val%60===0); // 정시만
+const timeH=buildTimes(0,24).filter(t=>t.val%60===0); // 정시만
 
 function timeSelHtml(id, curH){
   return `<select class="day-time-select" id="${id}" onchange="updateCustomTime('${id}')">`+

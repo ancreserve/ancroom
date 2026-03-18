@@ -74,6 +74,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F0;color:var(--text);
 .room-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
 .room-card{border:1.5px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:all .15s;background:white;}
 .room-card:hover{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,125,50,.08);}
+.room-card.room-closed{opacity:.45;cursor:not-allowed;border-color:var(--border);}
+.room-card.room-closed:hover{border-color:var(--border);box-shadow:none;}
 .room-card.selected{border-color:var(--green);background:var(--green-light);box-shadow:0 0 0 3px rgba(46,125,50,.12);}
 .room-name{font-size:17px;font-weight:700;margin-bottom:6px;}
 .room-capacity{font-size:13px;color:var(--text-sub);margin-bottom:8px;}
@@ -244,7 +246,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F0;color:var(--text);
 .add-room-btn:hover{background:#C8E6C9;border-color:var(--green);}
 
 /* 룸 편집 모달 */
-.room-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.room-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;align-items:center;justify-content:center;padding:20px;}
 .room-modal-overlay.show{display:flex;}
 .room-modal{background:white;border-radius:20px;width:100%;max-width:440px;padding:26px 24px;}
 .room-modal h3{font-size:20px;font-weight:700;margin-bottom:20px;}
@@ -255,6 +257,34 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F0;color:var(--text);
 .rm-btns{display:flex;gap:10px;margin-top:20px;}
 .rm-save{flex:1;padding:14px;background:var(--green);color:white;border:none;border-radius:11px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;}
 .rm-cancel{padding:14px 20px;background:var(--gray-light);color:var(--text);border:none;border-radius:11px;font-size:16px;font-weight:500;cursor:pointer;font-family:inherit;}
+/* 예약 완료 내역 모달 */
+.done-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.done-overlay.show{display:flex;}
+.done-modal{background:white;border-radius:20px;width:100%;max-width:440px;padding:32px 26px;text-align:center;}
+.done-icon{font-size:52px;margin-bottom:12px;}
+.done-title{font-size:24px;font-weight:700;color:var(--green);margin-bottom:6px;}
+.done-sub{font-size:15px;color:var(--text-sub);margin-bottom:20px;}
+.done-box{background:var(--green-light);border-radius:14px;padding:18px 20px;margin-bottom:20px;text-align:left;}
+.done-row{display:flex;gap:10px;align-items:flex-start;padding:7px 0;font-size:15px;border-bottom:1px solid rgba(46,125,50,.1);}
+.done-row:last-child{border-bottom:none;}
+.done-key{font-weight:700;min-width:76px;color:#2E7D32;font-size:14px;padding-top:1px;flex-shrink:0;}
+.done-val{color:var(--text);font-weight:500;line-height:1.5;}
+.done-close{width:100%;padding:17px;background:var(--green);color:white;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;}
+.room-closed{opacity:.45;cursor:not-allowed!important;border-style:dashed!important;}
+.room-closed:hover{border-color:var(--border)!important;box-shadow:none!important;background:white!important;}
+/* 더블컨펌 모달 */
+.confirm-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:20px;}
+.confirm-overlay.show{display:flex;}
+.confirm-modal{background:white;border-radius:20px;width:100%;max-width:420px;padding:28px 24px;}
+.confirm-title{font-size:19px;font-weight:700;margin-bottom:4px;}
+.confirm-subtitle{font-size:14px;color:var(--text-sub);margin-bottom:16px;}
+.confirm-box{background:var(--gray-light);border-radius:12px;padding:16px;margin-bottom:6px;}
+.confirm-row{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:15px;}
+.confirm-key{font-weight:700;min-width:68px;color:var(--text-sub);font-size:13px;padding-top:2px;}
+.confirm-val{color:var(--text);line-height:1.5;font-weight:500;}
+.confirm-btns{display:flex;gap:10px;margin-top:18px;}
+.confirm-ok{flex:1;padding:15px;background:var(--green);color:white;border:none;border-radius:11px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;}
+.confirm-cancel-btn{padding:15px 20px;background:var(--gray-light);color:var(--text);border:none;border-radius:11px;font-size:17px;font-weight:500;cursor:pointer;font-family:inherit;}
 </style>
 </head>
 <body>
@@ -389,7 +419,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F0;color:var(--text);
         </div>
       </div>
 
-      <button class="submit-btn" onclick="submitBooking()">✅ 예약 완료</button>
+      <button class="submit-btn" onclick="submitBooking()">예약하기</button>
     </div>
   </div>
 </div>
@@ -479,6 +509,44 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F0;color:var(--text);
   </div>
 </div>
 
+<!-- 예약 완료 내역 모달 -->
+<div class="done-overlay" id="doneOverlay">
+  <div class="done-modal">
+    <div class="done-icon">✅</div>
+    <div class="done-title" id="doneTitle">예약이 완료되었습니다!</div>
+    <div class="done-sub" id="doneSub">아래 예약 내역을 확인해주세요</div>
+    <div class="done-box">
+      <div class="done-row"><div class="done-key">📅 날짜</div><div class="done-val" id="doneDate"></div></div>
+      <div class="done-row"><div class="done-key">🏠 장소</div><div class="done-val" id="doneRoom"></div></div>
+      <div class="done-row"><div class="done-key">⏰ 시간</div><div class="done-val" id="doneTime"></div></div>
+      <div class="done-row"><div class="done-key">👤 예약자</div><div class="done-val" id="doneName"></div></div>
+      <div class="done-row"><div class="done-key">📝 용도</div><div class="done-val" id="donePurpose"></div></div>
+      <div class="done-row" id="doneRepeatRow" style="display:none"><div class="done-key">🔄 반복</div><div class="done-val" id="doneRepeat"></div></div>
+    </div>
+    <button class="done-close" onclick="document.getElementById('doneOverlay').classList.remove('show')">확인</button>
+  </div>
+</div>
+
+<!-- 더블컨펌 모달 -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-title">예약 내용 확인</div>
+    <div class="confirm-subtitle">아래 내용이 맞는지 확인해주세요</div>
+    <div class="confirm-box">
+      <div class="confirm-row"><div class="confirm-key">날짜</div><div class="confirm-val" id="cfDate"></div></div>
+      <div class="confirm-row"><div class="confirm-key">장소</div><div class="confirm-val" id="cfRoom"></div></div>
+      <div class="confirm-row"><div class="confirm-key">시간</div><div class="confirm-val" id="cfTime"></div></div>
+      <div class="confirm-row"><div class="confirm-key">예약자</div><div class="confirm-val" id="cfName"></div></div>
+      <div class="confirm-row"><div class="confirm-key">용도</div><div class="confirm-val" id="cfPurpose"></div></div>
+      <div class="confirm-row" id="cfRepeatRow" style="display:none"><div class="confirm-key">반복</div><div class="confirm-val" id="cfRepeat"></div></div>
+    </div>
+    <div class="confirm-btns">
+      <button class="confirm-cancel-btn" onclick="closeConfirm()">← 돌아가기</button>
+      <button class="confirm-ok" onclick="doBooking()">예약 확정</button>
+    </div>
+  </div>
+</div>
+
 <!-- 관리자 비밀번호 모달 -->
 <div class="pw-overlay" id="pwOverlay">
   <div class="pw-modal">
@@ -520,6 +588,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:#F0F4F0;color:var(--text);
 <script>
 // ─── Apps Script API 연동 ───
 const API_URL = 'https://script.google.com/macros/s/AKfycbyjiTBz0x5XwJJyxsiXEfydVaZhKtOt32wj-mQWQUJPu5WKdf0fYZ2Iu9hld-aZuPIZnA/exec';
+var ADMIN_PW = '0204'; // 맨 위에 선언해서 어디서든 접근 가능
 
 async function apiGet(params) {
   const qs = Object.entries(params).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
@@ -614,24 +683,58 @@ let rooms=[
 ];
 let selRoom=null;
 
+// ─── 예약하기 달력 + 공통 변수 (가장 먼저 선언) ───
+const DAY=['일','월','화','수','목','금','토'];
+const today=new Date(); today.setHours(0,0,0,0);
+let bookCalYear=today.getFullYear(), bookCalMonth=today.getMonth();
+let bookSelDate=new Date(today);
+
+// ─── 예약 현황 ───
+const sTimes = buildTimes(9, 22);
+
+// 룸 운영 스케줄
+const roomSched={
+  '101':{0:'close',1:'open',2:'open',3:'open',4:'open',5:'open',6:'open'},
+  '102':{0:'close',1:'open',2:'open',3:'open',4:'open',5:'open',6:'close'},
+  '201':{0:'close',1:'open',2:'open',3:'open',4:'open',5:'open',6:'open'},
+  '202':{0:'close',1:'open',2:{mode:'custom',startH:13,endH:21},3:'open',4:{mode:'custom',startH:13,endH:21},5:'open',6:'close'},
+  '301':{0:'open', 1:'open',2:'open',3:'open',4:'open',5:'open',6:'open'},
+  '302':{0:'close',1:'close',2:'close',3:'close',4:'close',5:'close',6:'close'},
+};
+
+function isOpen(rid, dow, val){
+  const r=roomSched[rid]; if(!r) return true;
+  const rule=r[dow];
+  if(!rule||rule==='close') return false;
+  if(rule==='open') return true;
+  if(typeof rule==='object') return val>=rule.startH*60&&val<rule.endH*60;
+  return true;
+}
+
+let statusOff=0;
+function getStatusDate(){ const d=new Date(today); d.setDate(today.getDate()+statusOff); return d; }
+function changeStatusDate(dir){ statusOff+=dir; renderStatus(); }
+
 function renderRoomGrid(){
   const grid=document.getElementById('roomGrid');
   grid.innerHTML='';
+  const dow = bookSelDate ? bookSelDate.getDay() : today.getDay();
   rooms.forEach(r=>{
+    const open = isOpen(r.id, dow, 9*60);
     const c=document.createElement('div');
-    c.className='room-card'; c.id='rc-'+r.id;
-    c.innerHTML=`<div class="room-name">${r.name}</div><div class="room-capacity">${r.cap}</div><div class="room-slots"><span class="slot slot-free">가능</span></div>`;
-    c.onclick=()=>{document.querySelectorAll('.room-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');selRoom=r.id;};
+    c.className='room-card' + (open ? '' : ' room-closed');
+    c.id='rc-'+r.id;
+    const statusBadge = open
+      ? `<span class="slot slot-free">예약 가능</span>`
+      : `<span class="slot slot-busy">운영 안함</span>`;
+    c.innerHTML=`<div class="room-name">${r.name}</div><div class="room-capacity">${r.cap}</div><div class="room-slots">${statusBadge}</div>`;
+    if(open){
+      c.onclick=()=>{document.querySelectorAll('.room-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');selRoom=r.id;};
+    }
     grid.appendChild(c);
   });
 }
 renderRoomGrid();
-
-// ─── 예약하기 달력 ───
-const DAY=['일','월','화','수','목','금','토'];
-const today=new Date(); today.setHours(0,0,0,0);
-let bookCalYear=today.getFullYear(), bookCalMonth=today.getMonth();
-let bookSelDate=new Date(today); // 기본값: 오늘
 
 function renderBookCal(){
   document.getElementById('bookCalLabel').textContent=`${bookCalYear}년 ${bookCalMonth+1}월`;
@@ -678,6 +781,7 @@ function bookCalMove(dir){
 function selectBookDate(y,m,d){
   bookSelDate=new Date(y,m-1,d);
   renderBookCal();
+  renderRoomGrid(); // 날짜 바뀌면 룸 운영 여부 재계산
   updateFreqLabels();
 }
 
@@ -779,34 +883,6 @@ document.addEventListener('click', e => {
   }
 });
 
-// ─── 예약 현황 ───
-const sTimes = buildTimes(9, 22);
-
-// 룸 운영 스케줄 (0=일 ~ 6=토)
-// 'open' | 'close' | {mode:'custom', startH, endH}
-const roomSched={
-  '101':{0:'close',1:'open',2:'open',3:'open',4:'open',5:'open',6:'open'},
-  '102':{0:'close',1:'open',2:'open',3:'open',4:'open',5:'open',6:'close'},
-  '201':{0:'close',1:'open',2:'open',3:'open',4:'open',5:'open',6:'open'},
-  '202':{0:'close',1:'open',2:{mode:'custom',startH:13,endH:21},3:'open',4:{mode:'custom',startH:13,endH:21},5:'open',6:'close'},
-  '301':{0:'open', 1:'open',2:'open',3:'open',4:'open',5:'open',6:'open'},
-  '302':{0:'close',1:'close',2:'close',3:'close',4:'close',5:'close',6:'close'},
-};
-
-function isOpen(rid, dow, val){
-  const r=roomSched[rid]; if(!r) return true;
-  const rule=r[dow];
-  if(!rule||rule==='close') return false;
-  if(rule==='open') return true;
-  if(typeof rule==='object') return val>=rule.startH*60&&val<rule.endH*60;
-  return true;
-}
-
-let statusOff=0;
-function getStatusDate(){ const d=new Date(today); d.setDate(today.getDate()+statusOff); return d; }
-
-function changeStatusDate(dir){ statusOff+=dir; renderStatus(); }
-
 // ─── 탭 ───
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='book')||(i===1&&tab==='status')));
@@ -814,8 +890,24 @@ function switchTab(tab){
   document.getElementById('page-status').classList.toggle('active',tab==='status');
 }
 
-// ─── 예약 제출 ───
-async function submitBooking(){
+// ─── 예약 제출 (더블컨펌) ───
+let pendingBookingData = null;
+
+function showBookingError(msg) {
+  // 기존 에러 메시지 제거
+  const old = document.getElementById('bookingErrorMsg');
+  if(old) old.remove();
+  const el = document.createElement('div');
+  el.id = 'bookingErrorMsg';
+  el.style.cssText = 'background:#FFEBEE;color:#C62828;border-radius:10px;padding:14px 18px;font-size:16px;font-weight:700;margin-bottom:14px;text-align:center;border:1.5px solid #FFCDD2;';
+  el.textContent = '⚠️ ' + msg;
+  const submitBtn = document.querySelector('.submit-btn');
+  submitBtn.parentNode.insertBefore(el, submitBtn);
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+  setTimeout(() => { if(el.parentNode) el.remove(); }, 4000);
+}
+
+function submitBooking(){
   const name    = document.getElementById('nameInput').value.trim();
   const purpose = document.getElementById('purposeInput').value.trim();
   const repeat  = document.getElementById('repeatToggle').checked;
@@ -823,66 +915,107 @@ async function submitBooking(){
   const freqBtn = document.querySelector('.freq-btn.active');
   const freq    = freqBtn ? freqBtn.dataset.freq : 'w1';
 
-  if(!selRoom)   { alert('미팅룸을 선택해주세요!'); return; }
-  if(!name)      { alert('예약자 이름을 입력해주세요!'); return; }
-  if(!purpose)   { alert('사용 용도를 입력해주세요!'); return; }
-  if(!bookSelDate){ alert('날짜를 선택해주세요!'); return; }
-  if(repeat&&!until){ alert('반복 종료일을 선택해주세요!'); return; }
+  // 미입력 항목 체크 — 모두 모아서 한 번에 안내
+  const missing = [];
+  if(!bookSelDate || !selRoom) missing.push('날짜와 미팅룸');
+  else if(!bookSelDate)        missing.push('날짜');
+  else if(!selRoom)            missing.push('미팅룸');
+  if(!name)    missing.push('예약자 이름');
+  if(!purpose) missing.push('사용 용도');
+  if(repeat && !until) missing.push('반복 종료일');
 
-  const dateStr = `${bookSelDate.getFullYear()}-${String(bookSelDate.getMonth()+1).padStart(2,'0')}-${String(bookSelDate.getDate()).padStart(2,'0')}`;
-  const startVal = allTimes[selStart].val;
-  const endVal   = allTimes[selEnd].val;
-  const toHHMM   = v => `${String(Math.floor(v/60)).padStart(2,'0')}:${String(v%60).padStart(2,'0')}`;
-
-  const submitBtn = document.querySelector('.submit-btn');
-  submitBtn.textContent = '저장 중...';
-  submitBtn.disabled = true;
-
-  try {
-    const result = await apiPost({
-      action: 'createBooking',
-      roomId: selRoom,
-      date: dateStr,
-      startTime: toHHMM(startVal),
-      endTime: toHHMM(endVal),
-      booker: name,
-      purpose,
-      repeat,
-      repeatFreq: freq,
-      repeatEnd: until || '',
-    });
-
-    if(result.error) throw new Error(result.error);
-
-    const msg = repeat
-      ? `✅ ${result.count}개 날짜에 예약 완료!`
-      : '✅ 예약이 완료되었습니다!';
-    document.getElementById('toast').textContent = msg;
-    const t = document.getElementById('toast');
-    t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 3500);
-
-    // 입력 초기화
-    document.getElementById('nameInput').value = '';
-    document.getElementById('purposeInput').value = '';
-    document.getElementById('repeatToggle').checked = false;
-    document.getElementById('repeatDetail').classList.remove('show');
-    document.querySelectorAll('.room-card').forEach(c=>c.classList.remove('selected'));
-    selRoom = null;
-
-    // 현황 새로고침
-    renderStatus();
-
-  } catch(err) {
-    alert('예약 실패: ' + err.message);
-  } finally {
-    submitBtn.textContent = '✅ 예약 완료';
-    submitBtn.disabled = false;
+  if(missing.length > 0){
+    showBookingError(missing.join(', ') + ' 을(를) 입력해주세요.');
+    return;
   }
+
+  // 운영 안함 룸 차단
+  const dow = bookSelDate.getDay();
+  if(!isOpen(selRoom, dow, allTimes[selStart].val)){
+    showBookingError('선택하신 날짜에 해당 룸은 운영하지 않습니다.');
+    return;
+  }
+
+  const room = rooms.find(r=>r.id===selRoom);
+  const toHHMM = v => `${String(Math.floor(v/60)).padStart(2,'0')}:${String(v%60).padStart(2,'0')}`;
+  const dateStr   = `${bookSelDate.getFullYear()}-${String(bookSelDate.getMonth()+1).padStart(2,'0')}-${String(bookSelDate.getDate()).padStart(2,'0')}`;
+  const startHHMM = toHHMM(allTimes[selStart].val);
+  const endHHMM   = toHHMM(allTimes[selEnd].val);
+  const freqLabels = {
+    'w1':'매주', 'w2':'격주(2주마다)', 'w3':'3주마다', 'w4':'4주마다',
+    'mnth-week': document.getElementById('freqMonthWeek')?.textContent||'매월 같은 요일',
+    'mnth-day':  document.getElementById('freqMonthDay')?.textContent||'매월 같은 날',
+    'q':'분기마다'
+  };
+
+  // 더블컨펌 모달 내용 채우기
+  document.getElementById('cfDate').textContent    = `${bookSelDate.getFullYear()}년 ${bookSelDate.getMonth()+1}월 ${bookSelDate.getDate()}일 (${DAY[dow]})`;
+  document.getElementById('cfRoom').textContent    = room ? room.name : selRoom;
+  document.getElementById('cfTime').textContent    = `${startHHMM} ~ ${endHHMM}`;
+  document.getElementById('cfName').textContent    = name;
+  document.getElementById('cfPurpose').textContent = purpose;
+  const repeatRow = document.getElementById('cfRepeatRow');
+  if(repeat && until){
+    document.getElementById('cfRepeat').textContent = `${freqLabels[freq]||freq} · ${until}까지`;
+    repeatRow.style.display = '';
+  } else {
+    repeatRow.style.display = 'none';
+  }
+
+  pendingBookingData = { roomId:selRoom, date:dateStr, startTime:startHHMM, endTime:endHHMM, booker:name, purpose, repeat, repeatFreq:freq, repeatEnd:until||'' };
+  document.getElementById('confirmOverlay').classList.add('show');
+}
+
+function closeConfirm(){
+  document.getElementById('confirmOverlay').classList.remove('show');
+  pendingBookingData = null;
+}
+
+async function doBooking(){
+  if(!pendingBookingData) return;
+  document.getElementById('confirmOverlay').classList.remove('show');
+
+  const data = {...pendingBookingData};
+
+  // ── 완료 모달 즉시 표시 (API 결과 기다리지 않음) ──
+  const isRepeat = data.repeat && data.repeatEnd;
+  document.getElementById('doneTitle').textContent    = isRepeat ? '반복 예약이 완료되었습니다!' : '예약이 완료되었습니다!';
+  document.getElementById('doneSub').textContent      = isRepeat ? '반복 예약 내역을 확인해주세요' : '예약 내역을 확인해주세요';
+  document.getElementById('doneDate').textContent     = document.getElementById('cfDate').textContent;
+  document.getElementById('doneRoom').textContent     = document.getElementById('cfRoom').textContent;
+  document.getElementById('doneTime').textContent     = document.getElementById('cfTime').textContent;
+  document.getElementById('doneName').textContent     = document.getElementById('cfName').textContent;
+  document.getElementById('donePurpose').textContent  = document.getElementById('cfPurpose').textContent;
+  const doneRepeatRow = document.getElementById('doneRepeatRow');
+  if(isRepeat){
+    document.getElementById('doneRepeat').textContent = document.getElementById('cfRepeat').textContent;
+    doneRepeatRow.style.display = '';
+  } else {
+    doneRepeatRow.style.display = 'none';
+  }
+  document.getElementById('doneOverlay').classList.add('show');
+
+  // ── 입력 초기화 ──
+  document.getElementById('nameInput').value = '';
+  document.getElementById('purposeInput').value = '';
+  document.getElementById('repeatToggle').checked = false;
+  document.getElementById('repeatDetail').classList.remove('show');
+  document.querySelectorAll('.room-card').forEach(c=>c.classList.remove('selected'));
+  selRoom = null;
+  pendingBookingData = null;
+
+  // ── API 저장은 백그라운드에서 ──
+  try {
+    const result = await apiPost({ action:'createBooking', ...data });
+    if(result && result.error) console.warn('예약 저장 경고:', result.error);
+  } catch(e) {
+    console.warn('API 저장 실패 (오프라인?):', e);
+  }
+
+  renderStatus();
 }
 
 // ─── 관리자 인증 ───
-const ADMIN_PW = '0313199182';
-
 function openAdmin(){
   // 비밀번호 모달 열기
   document.getElementById('pwInput').value = '';
@@ -912,7 +1045,12 @@ function checkPw(){
     setTimeout(()=>input.focus(), 50);
   }
 }
-function closeAdmin(e){ if(e.target===document.getElementById('adminOverlay')) document.getElementById('adminOverlay').classList.remove('show'); }
+function closeAdmin(e){
+  // 룸 편집 모달이 열려있으면 관리자 오버레이 클릭 무시
+  if(document.getElementById('roomModalOverlay').classList.contains('show')) return;
+  if(e.target===document.getElementById('adminOverlay'))
+    document.getElementById('adminOverlay').classList.remove('show');
+}
 async function saveNotice(){
   const v = document.getElementById('noticeEdit').value.trim();
   try {
@@ -1058,17 +1196,32 @@ function renderRoomManageList(){
         <div class="room-manage-cap">${r.cap}</div>
       </div>
       <div class="room-action-btns">
-        <button class="room-edit-btn" onclick="openRoomModal('${r.id}')">수정</button>
-        <button class="room-del-btn" onclick="deleteRoom('${r.id}')">삭제</button>
+        <button class="room-edit-btn" data-action="edit" data-rid="${r.id}">수정</button>
+        <button class="room-del-btn"  data-action="del"  data-rid="${r.id}">삭제</button>
       </div>
     </div>`).join('');
 }
 
+// 이벤트 위임 — 룸 수정/삭제 버튼 전용
+document.addEventListener('click', function(e){
+  // 예약하기 버튼, 모달 버튼은 무시
+  if(e.target.closest('.submit-btn')) return;
+  if(e.target.closest('.confirm-ok')) return;
+  if(e.target.closest('.confirm-cancel-btn')) return;
+  if(e.target.closest('.done-close')) return;
+
+  const editBtn = e.target.closest('[data-action="edit"]');
+  const delBtn  = e.target.closest('[data-action="del"]');
+  if(editBtn){ openRoomModal(editBtn.dataset.rid); return; }
+  if(delBtn){  deleteRoom(delBtn.dataset.rid);  return; }
+});
+
 function openRoomModal(id){
-  editingRoomId = id;
+  editingRoomId = id ? String(id) : null;
   const modal = document.getElementById('roomModalOverlay');
-  if(id){
-    const r = rooms.find(x=>x.id===id);
+  if(editingRoomId){
+    const r = rooms.find(x=>String(x.id)===editingRoomId);
+    if(!r){ alert('룸을 찾을 수 없습니다.'); return; }
     document.getElementById('roomModalTitle').textContent = '룸 수정';
     document.getElementById('rmName').value = r.name;
     document.getElementById('rmCap').value = r.cap;
@@ -1092,8 +1245,8 @@ async function saveRoom(){
   if(!cap){  alert('수용 인원을 입력해주세요.'); return; }
 
   if(editingRoomId){
-    const r = rooms.find(x=>x.id===editingRoomId);
-    r.name = name; r.cap = cap;
+    const r = rooms.find(x=>String(x.id)===String(editingRoomId));
+    if(r){ r.name = name; r.cap = cap; }
   } else {
     const newId = 'r' + Date.now();
     rooms.push({id:newId, name, cap});
@@ -1113,20 +1266,23 @@ async function saveRoom(){
 }
 
 async function deleteRoom(id){
-  const r = rooms.find(x=>x.id===id);
-  if(!confirm(`"${r.name}"을(를) 삭제할까요?\n해당 룸의 예약 데이터도 함께 삭제됩니다.`)) return;
-  rooms = rooms.filter(x=>x.id!==id);
+  id = String(id);
+  const r = rooms.find(x=>String(x.id)===id);
+  if(!r){ alert('룸을 찾을 수 없습니다.'); return; }
+
+  rooms = rooms.filter(x=>String(x.id)!==id);
   delete roomSched[id];
-  if(selRoom===id) selRoom=null;
+  if(String(selRoom)===id) selRoom=null;
 
   try {
-    await apiPost({ action:'saveRooms', rooms: rooms.map(r=>({...r, schedule: roomSched[r.id]||{}})), adminPw:ADMIN_PW });
+    await apiPost({ action:'saveRooms', rooms: rooms.map(rm=>({...rm, schedule: roomSched[rm.id]||{}})), adminPw:ADMIN_PW });
   } catch(e) { console.warn('룸 삭제 저장 실패:', e); }
 
   renderRoomGrid();
   renderRoomSettings();
   renderRoomManageList();
   renderStatus();
+  alert(`"${r.name}" 룸이 삭제되었습니다.`);
 }
 
 // ─── 초기화 — Sheets에서 데이터 로드 ───
